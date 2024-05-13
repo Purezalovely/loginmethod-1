@@ -1,3 +1,17 @@
+<?php
+require_once('classes/database.php');
+$con = new database;
+
+if (isset($_POST['delete'])) {
+  $id = $_POST['id'];
+  if ($con->delete($id)) {
+    header('location:index.php');
+  }else{
+    echo "Something went wrong";
+  }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +29,7 @@
 
 <div class="container user-info rounded shadow p-3 my-2">
 <h2 class="text-center mb-2">User Table</h2>
-  <div class="table-responsive">
+  <div class="table-responsive text-center">
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -29,21 +43,27 @@
           <th>Actions</th>
         </tr>
       </thead>
+      <?php
+        $counter  = 1;
+$data = $con->view();
+foreach ($data as $rows) {
+}
+?>
       <tbody>
         <tr>
-          <td>1</td>
-          <td>John</td>
-          <td>Doe</td>
-          <td>01/01/1990</td>
-          <td>Male</td>
-          <td>johndoe</td>
-          <td>123 Main St, Baranggay XYZ, Metro Manila</td>
+          <td><?php echo $counter++?></td>
+          <td><?php echo $rows['firstname']; ?></td>
+          <td><?php echo $rows['lastname']; ?></td>
+          <td><?php echo $rows['birthday']; ?></td>
+          <td><?php echo $rows['sex']; ?></td>
+          <td><?php echo $rows['username']; ?></td>
+          <td><?php echo ucwords($rows['address']); ?></td>
           <td>
           <a href="#" class="btn btn-primary btn-sm">Edit</a>
         <!-- Delete button -->
         <form method="POST" style="display: inline;">
             <input type="hidden" name="id">
-            <input type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?')">
+            <input type="submit" name="delete" class="btn btn-danger btn-sm" value="Delete" onclick="return confirm('Are you sure you want to delete this user?')">
         </form>
           </td>
         </tr>

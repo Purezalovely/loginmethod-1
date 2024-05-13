@@ -11,6 +11,35 @@ class database{
         return $con->query($query)->fetch();
     }
 
+    function view ()
+         {
+            $con = $this->opencon();
+            return $con->query("SELECT  users.user_id,users.username,users.password,users.firstname,users.lastname,users.birthday,users.sex, CONCAT (user_address.user_add_id, user_address.user_id,user_address.user_add_street,' ',user_address.user_add_barangay,' ',user_address.user_add_city,'',user_address.user_add_province) AS address From users JOIN user_address ON users.user_id=user_address.user_id")->fetchAll();
+         }
+
+    function delete($id)
+    {
+        try{
+        $con = $this->opencon();
+        $con->beginTransaction();
+
+        //Delete user Address
+        $query = $con->prepare("DELETE FROM user_address WHERE user_id = ?");
+        $query->execute([$id]);
+
+        //Delete user
+        $query2 = $con->prepare("DELETE FROM users WHERE user_id = ?");
+        $query2->execute([$id]);
+
+        $con->commit();
+        return true; // Deletion Successful
+        } catch (PDOException $e) {
+            $con->rollback();
+            return false;
+        }
+        }
+    }
+
     function signup($firstname, $lastname, $birthday, $username, $password, $sex){
         $con = $this->opencon();
    
@@ -44,4 +73,3 @@ class database{
     }
    
  
-}
