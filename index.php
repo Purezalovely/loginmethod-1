@@ -47,7 +47,7 @@ if (isset($_POST['delete'])) {
         $counter  = 1;
 $data = $con->view();
 foreach ($data as $rows) {
-}
+
 ?>
       <tbody>
         <tr>
@@ -59,7 +59,10 @@ foreach ($data as $rows) {
           <td><?php echo $rows['username']; ?></td>
           <td><?php echo ucwords($rows['address']); ?></td>
           <td>
-          <a href="#" class="btn btn-primary btn-sm">Edit</a>
+          <form method="POST" action="update.php" style="display: inline;">
+            <input type="hidden" name="id" value="<?php echo $rows['user_id']; ?>">
+            <input type="submit" name="update" class="btn btn-primary btn-sm" value="Update" onclick="return confirm('Are you sure you want to update this user?')">
+        </form>
         <!-- Delete button -->
         <form method="POST" style="display: inline;">
             <input type="hidden" name="id">
@@ -67,6 +70,7 @@ foreach ($data as $rows) {
         </form>
           </td>
         </tr>
+        <?php } ?>
         <!-- Add more rows for additional users -->
       </tbody>
     </table>
