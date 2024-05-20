@@ -1,6 +1,11 @@
 <?php
 require_once('classes/database.php');
-$con = new database;
+$con = new database();
+session_start();
+
+if (empty($_SESSION['username'])) {
+  header('location:login.php');
+}
 
 if (isset($_POST['delete'])) {
   $id = $_POST['id'];
@@ -10,6 +15,8 @@ if (isset($_POST['delete'])) {
     echo "Something went wrong";
   }
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +33,7 @@ if (isset($_POST['delete'])) {
 <link rel="stylesheet" href="./includes/style.css">
 </head>
 <body>
-
+<?php include('navbar.php'); ?>
 <div class="container user-info rounded shadow p-3 my-2">
 <h2 class="text-center mb-2">User Table</h2>
   <div class="table-responsive text-center">
@@ -59,13 +66,13 @@ foreach ($data as $rows) {
           <td><?php echo $rows['username']; ?></td>
           <td><?php echo ucwords($rows['address']); ?></td>
           <td>
-          <form method="POST" action="update.php" style="display: inline;">
+          <form action="update.php" method="post" style="display:inline;">
             <input type="hidden" name="id" value="<?php echo $rows['user_id']; ?>">
             <input type="submit" name="update" class="btn btn-primary btn-sm" value="Update" onclick="return confirm('Are you sure you want to update this user?')">
         </form>
         <!-- Delete button -->
         <form method="POST" style="display: inline;">
-            <input type="hidden" name="id">
+            <input type="hidden" name="id" value="<?php echo $rows['user_id']; ?>">
             <input type="submit" name="delete" class="btn btn-danger btn-sm" value="Delete" onclick="return confirm('Are you sure you want to delete this user?')">
         </form>
           </td>

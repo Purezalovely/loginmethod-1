@@ -7,10 +7,9 @@ class database{
     }
     function check($username, $password){
         $con = $this->opencon();
-        $query = "SELECT * from users WHERE username='".$username."'&&password='".$password."'";
+        $query = "SELECT * from users WHERE username='".$username."'&&password='".$password."'                ";
         return $con->query($query)->fetch();
     }
-
     function view ()
          {
             $con = $this->opencon();
@@ -75,7 +74,23 @@ class database{
     function viewdata($id) {
         try {
             $con = $this->opencon();
-            $query = $con->prepare("WHERE users.user_id = ?");
+            $query = $con->prepare("SELECT
+            users.user_id,
+            users.username,
+            users.password,
+            users.firstname,
+            users.lastname,
+            users.birthday,
+            users.sex,
+                user_address.user_add_id,
+                user_address.user_id,
+                user_address.user_add_street,
+                user_address.user_add_barangay,
+                user_address.user_add_city,
+                user_address.user_add_province
+        FROM
+            users
+        JOIN user_address ON users.user_id = user_address.user_id WHERE users.user_id = ?");
             $query->execute([$id]);
             return $query->fetch();
         } catch (PDOException $e) {
@@ -83,14 +98,15 @@ class database{
         }
     }
 
-    function updateUser ($user_id, $firstName, $lastName, $birthday, $sex, $username, $password) {
+    function updateUser($user_id, $firstname, $lastname, $birthday, $sex, $username, $password) {
         try {
             $con = $this->opencon();
             $con->beginTransaction();
-            $query = $con->prepare("UPDATE users SET firstname=?, lastname=?, birthday=?, sex=?, user_pass=? WHERE user_id=?");
-            $query->execute([$firstName, $lastname, $birthday, $sex, $username, $lastName, $user_id]);
+            $query = $con->prepare("UPDATE users SET firstname=?, lastname=?, birthday=?, sex=?, username=?, password=? WHERE user_id=?");
+            $query->execute([$firstname, $lastname, $birthday, $sex, $username, $password, $user_id]);
             //Update Successful
             $con->commit();
+            return true;
         } catch (PDOException $e) {
             // Handle the exception
             $con->rollBack();
@@ -98,14 +114,15 @@ class database{
         }
     }
     
-    function updateUserAddress ($user_id, $street, $barangay, $city, $province) {
+    function updateUserAddress($user_id, $street, $barangay, $city, $province) {
         try {
-            $con = $this->opencom();
+            $con = $this->opencon();
             $con->beginTransaction();
             $query = $con->prepare("UPDATE user_address SET user_add_street=?, user_add_barangay=?, user_add_city=?, user_add_province=? WHERE user_id=?");
             $query->execute([$street, $barangay, $city, $province, $user_id]);
             //Update Successful
             $con->commit();
+            return true;
         } catch (PDOException $e) {
             // Handle the exception
             $con->rollBack();
