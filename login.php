@@ -1,22 +1,17 @@
 
 <?php
-
 require_once("classes/database.php");
-
 $con = new database();
-
 session_start();
  
 if (isset($_SESSION['username'])) {
-
     header('Location: index.php');
-
     exit();
 
 }
  
 $error_message = "";
- 
+
 if (isset($_POST['login'])) {
 
     $username = $_POST['username'];
