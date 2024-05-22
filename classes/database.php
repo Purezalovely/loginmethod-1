@@ -13,7 +13,7 @@ class database{
     function view ()
          {
             $con = $this->opencon();
-            return $con->query("SELECT  users.user_id,users.username,users.password,users.firstname,users.lastname,users.birthday,users.sex,users.profile_picture, CONCAT (user_address.user_add_id, user_address.user_id,user_address.user_add_street,' ',user_address.user_add_barangay,' ',user_address.user_add_city,'',user_address.user_add_province) AS address From users JOIN user_address ON users.user_id=user_address.user_id")->fetchAll();
+            return $con->query("SELECT  users.user_id,users.username,users.password,users.firstname,users.lastname,users.birthday,users.user_email, users.sex,users.profile_picture, CONCAT (user_address.user_add_id, user_address.user_id,user_address.user_add_street,' ',user_address.user_add_barangay,' ',user_address.user_add_city,'',user_address.user_add_province) AS address From users JOIN user_address ON users.user_id=user_address.user_id")->fetchAll();
          }
 
     function delete($id)
@@ -53,20 +53,17 @@ class database{
         return $query->execute([$username, $password, $firstname, $lastname, $birthday,$sex]);
     }
 
-    function signupUser($username, $password, $firstName, $lastName, $birthday, $sex, $email, $profilePicture) {
-        $con = $this->opencon();
-    // Save user data along with profile picture path to the database
-        $query = $con->prepare("SELECT username FROM users WHERE username = ?");
-        $query->execute([$username]);
-        $existingUser = $query->fetch();
-        if ($existingUser){
-            return false;
-        }
-        $query = $con->prepare("INSERT INTO users (firstname, lastname, birthday, sex, username, password,user_email, profile_picture) VALUES (?,?,?,?,?,?,?,?)");
-        $query->execute([$username, $password, $firstName, $lastName, $birthday,$sex, $email, $profilePicture]);
-        return $con->lastInsertId();
+           
 
-    }function insertAddress($user_id, $city, $province, $street, $barangay) {
+    function signupUser($firstname, $lastname, $birthday, $sex, $email, $username, $password, $profilePicture)
+             {
+                 $con = $this->opencon();
+                 // Save user data along with profile picture path to the database
+                 $con->prepare("INSERT INTO users (firstname, lastname, birthday, sex, user_email, username, password, profile_picture) VALUES (?,?,?,?,?,?,?,?)")->execute([$firstname, $lastname, $birthday, $sex, $email, $username, $password, $profilePicture]);
+                 return $con->lastInsertId();
+                 }
+             
+    function insertAddress($user_id, $city, $province, $street, $barangay) {
         $con = $this->opencon();
         return $con->prepare("INSERT INTO user_address (user_id, user_add_street,user_add_barangay, user_add_city, user_add_province) VALUES (?, ?, ?, ?, ?)")
             ->execute([$user_id, $city, $province, $street, $barangay]);

@@ -17,6 +17,8 @@ if (isset($_POST['delete'])) {
 }
 
 
+
+
 ?>
 
 <!DOCTYPE html>
@@ -36,6 +38,10 @@ if (isset($_POST['delete'])) {
 <?php include('navbar.php'); ?>
 <div class="container user-info rounded shadow p-3 my-2">
 <h2 class="text-center mb-2">User Table</h2>
+ <!-- Search input -->
+    <div class="mb-3">
+        <input type="text" id="search" class="form-control" placeholder="Search users...">
+    </div>
   <div class="table-responsive text-center">
     <table class="table table-bordered">
       <thead>
@@ -183,6 +189,29 @@ window.onload = function() {
   });
   expenseChart.render();
 }
+
+$(document).ready(function() {
+    $("#search-input").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("table tr").each(function(index) {
+        if (index!== 0) { // skip the header row
+          $row = $(this);
+          var $columns = $row.find("td");
+          var found = false;
+          $columns.each(function() {
+            if ($(this).text().toLowerCase().indexOf(value) > -1) {
+              found = true;
+            }
+          });
+          if (found) {
+            $row.show();
+          } else {
+            $row.hide();
+          }
+        }
+      });
+    });
+  });
 </script>
 
 <!-- Bootstrap JS and dependencies -->

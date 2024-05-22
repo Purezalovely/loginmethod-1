@@ -13,6 +13,54 @@ $data = $con->viewdata($id);
  
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     // Check if all fields are set
+
+    // Handle file upload
+    $target_dir = "uploads/";
+    $original_file_name = basename($_FILES["profile_picture"]["name"]);
+    $new_file_name = $original_file_name;
+    $target_file = $target_dir. $original_file_name;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $uploadOk = 1;
+
+    // Check if file already exists and rename if necessary
+    if (file_exists($target_file)) {
+        $new_file_name = pathinfo($original_file_name, PATHINFO_FILENAME). '_'. time(). '.'. $imageFileType;
+        $target_file = $target_dir. $new_file_name;
+    }
+
+    // Check if file is an actual image or fake image
+    $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
+    if ($check === false) {
+        echo "File is not an image.";
+        $uploadOk = 0;
+    }
+
+    // Check file size
+    if ($_FILES["profile_picture"]["size"] > 50000000) {
+        echo "Sorry, your file is too large.";
+        $uploadOk = 0;
+    }
+
+    // Allow certain file formats
+    if ($imageFileType!= "jpg" && $imageFileType!= "png" && $imageFileType!= "jpeg" && $imageFileType!= "gif") {
+        echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+        $uploadOk = 0;
+    }
+
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        echo "Sorry, your file was not uploaded.";
+    } else {
+        if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
+            echo "The file ". htmlspecialchars($new_file_name). " has been uploaded.";
+
+            // Save the user data and the path to the profile picture in the database
+            $profile_picture_path = 'uploads/'. $new_file_name;
+            $user_id = $con->updateUser($user_id, $firstname, $lastname, $birthday, $sex, $username, $password, $profile_picture_path);
+        }
+    }
+}
+
     if (
         isset($_POST['firstname'], $_POST['lastname'], $_POST['birthday'], $_POST['sex'],
         $_POST['user'], $_POST['pass'], $_POST['c_pass'], $_POST['street'],
@@ -33,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
         $city = $_POST['city'];
         $province = $_POST['province'];
         $user_id = $_POST['id'];
+
+        
  
         if (1 === 1) {
           
@@ -58,7 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     } else {
         $error = "All fields are required.";
     }
-}
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,6 +131,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
 <div class="card mt-4">
 <div class="card-header bg-info text-white">Personal Information</div>
 <div class="card-body">
+<div class="form-group">
+<label for="profile_picture">Profile Picture:</label>
+<input type="file" class="form-control" name="profile_picture">
+</div>
 <div class="form-row">
 <div class="form-group col-md-6 col-sm-12">
 <label for="firstName">First Name:</label>

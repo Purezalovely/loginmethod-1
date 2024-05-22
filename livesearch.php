@@ -62,7 +62,7 @@ try {
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
-<?php include('includes/navbar.php'); ?>
+<?php include('navbar.php'); ?>
 <div class="container user-info rounded shadow p-3 my-5">
     <h2 class="text-center mb-2">User Table</h2>
     <!-- Search input -->
