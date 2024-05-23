@@ -5,11 +5,32 @@ class database{
     function opencon(){
         return new PDO('mysql:host=localhost; dbname=loginmethod', 'root', '');
     }
-    function check($username, $password){
+    // function check($username, $password){
+    //     $con = $this->opencon();
+    //     $query = "SELECT * from users WHERE username='".$username."'&&password='".$password."'                ";
+    //     return $con->query($query)->fetch();
+    // }
+
+    function check($username, $password) {
+        // Open database connection
         $con = $this->opencon();
-        $query = "SELECT * from users WHERE username='".$username."'&&password='".$password."'                ";
-        return $con->query($query)->fetch();
+    
+        // Prepare the SQL query
+        $query = $con->prepare("SELECT * FROM users WHERE username = ?");
+        $query->execute([$username]);
+    
+        // Fetch the user data as an associative array
+        $user = $query->fetch(PDO::FETCH_ASSOC);
+    
+        // If a user is found, verify the password
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
+        }
+    
+        // If no user is found or password is incorrect, return false
+        return false;
     }
+
     function view ()
          {
             $con = $this->opencon();

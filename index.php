@@ -11,14 +11,14 @@ if (isset($_POST['delete'])) {
   $id = $_POST['id'];
   if ($con->delete($id)) {
     header('location:index.php');
-  }else{
+  } else {
     echo "Something went wrong";
   }
 }
 
-
-
-
+// Fetching data only if it's not null
+$data = $con->view();
+if ($data !== null) {
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +27,6 @@ if (isset($_POST['delete'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome!</title>
-  <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <!-- For Icons -->
@@ -40,7 +39,7 @@ if (isset($_POST['delete'])) {
 <h2 class="text-center mb-2">User Table</h2>
  <!-- Search input -->
     <div class="mb-3">
-        <input type="text" id="search" class="form-control" placeholder="Search users...">
+        <input type="text" id="search-input" class="form-control" placeholder="Search users...">
     </div>
   <div class="table-responsive text-center">
     <table class="table table-bordered">
@@ -58,14 +57,11 @@ if (isset($_POST['delete'])) {
           <th>Actions</th>
         </tr>
       </thead>
-      <?php
-        $counter  = 1;
-$data = $con->view();
-foreach ($data as $rows) {
-
-?>
       <tbody>
-
+        <?php
+        $counter = 1;
+        foreach ($data as $rows) {
+        ?>
         <tr>
           <td><?php echo $counter++?></td>
           <td><?php echo $rows['user_email']; ?></td>
@@ -98,14 +94,11 @@ foreach ($data as $rows) {
                                 </form>
           </td>
         </tr>
-
         <?php } ?>
-        <!-- Add more rows for additional users -->
       </tbody>
     </table>
   </div>
-
-<div class="container my-5">
+  <div class="container my-5">
         <h2 class="text-center">User Profiles</h2>
         <div class="card-container">
             <?php
@@ -133,7 +126,7 @@ foreach ($data as $rows) {
                         <input type="hidden" name="id" value="<?php echo htmlspecialchars($rows['user_id']); ?>">
                         <input type="submit" name="delete" class="btn btn-danger btn-sm" value="Delete" onclick="return confirm('Are you sure you want to delete this user?')">
                     </form>
-                </div>
+                    </div>
             </div>
             <?php
             }
@@ -141,86 +134,32 @@ foreach ($data as $rows) {
         </div>
     </div>
 
- <!-- HTML declaration for bar graph -->
-  <div id="chartContainer" style="height: 370px; width: 100%;"></div>
-
-  <!-- HTML declaration for pie chart -->
-  <div id="pie" style="height: 370px; width: 100%;"></div>
-
-</div>
-<!-- Combine both chart scripts inside one window.onload -->
-<script>
-window.onload = function() {
-  var userChart = new CanvasJS.Chart("chartContainer", {
-    animationEnabled: true,
-    theme: "light2",
-    title: {
-      text: "Numbers of Users based on Sex"
-    },
-    axisY: {
-      title: "Number of Users per Sex"
-    },
-    data: [{
-      type: "column",
-      yValueFormatString: "",
-      dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
-    }]
-  });
-  userChart.render();
-
-  var expenseChart = new CanvasJS.Chart("pie", {
-    animationEnabled: true,
-    exportEnabled: true,
-    title: {
-      text: "Number of Users per Sex"
-    },
-    subtitles: [{
-      text: "Total"
-    }],
-    data: [{
-      type: "pie",
-      showInLegend: "true",
-      legendText: "{label}",
-      indexLabelFontSize: 16,
-      indexLabel: "{label} - #percent%",
-      yValueFormatString: "#,##0",
-      dataPoints: <?php echo json_encode($datapoints, JSON_NUMERIC_CHECK); ?>
-    }]
-  });
-  expenseChart.render();
-}
-
-$(document).ready(function() {
-    $("#search-input").on("keyup", function() {
-      var value = $(this).val().toLowerCase();
-      $("table tr").each(function(index) {
-        if (index!== 0) { // skip the header row
-          $row = $(this);
-          var $columns = $row.find("td");
-          var found = false;
-          $columns.each(function() {
-            if ($(this).text().toLowerCase().indexOf(value) > -1) {
-              found = true;
-            }
-          });
-          if (found) {
-            $row.show();
-          } else {
-            $row.hide();
-          }
-        }
-      });
-    });
-  });
-</script>
-
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
-<!-- Bootsrap JS na nagpapagana ng danger alert natin -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- jQuery for Live Search -->
+<script>
+$(document).ready(function() {
+  $("#search-input").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("table tbody tr").filter(function() {
+      var firstname = $(this).find("td:eq(0)").text().toLowerCase();
+      var lastname = $(this).find("td:eq(1)").text().toLowerCase();
+      var username = $(this).find("td:eq(2)").text().toLowerCase();
+      $(this).toggle(firstname.indexOf(value) > -1 || lastname.indexOf(value) > -1 || username.indexOf(value) > -1);
+    });
+  });
+});
+</script>
 
 </body>
 </html>
+
+<?php
+} else {
+    // Handle case where $data is null
+    echo "No data available.";
+}
+?>

@@ -8,20 +8,22 @@ if (isset($_SESSION['username'])) {
     exit();
 }
 
-$error_message = "";
-
 if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
     $result = $con->check($username, $password);
-  
+
     if ($result) {
         $_SESSION['username'] = $result['username'];
-        header('location:index.php');
+        if ($result['account_type']== 0) {
+            header('location:index.php');
+        } else if ($result['account_type'] ==1) {
+            header('location:user_account.php');
+        }
     } else {
         $error = "Incorrect username or password. Please try again.";
     }
-  }
+}
 
 ?>
 
