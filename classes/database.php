@@ -31,6 +31,57 @@ class database{
         return false;
     }
 
+    function validateCurrentPassword($userId, $currentPassword) {
+        // Open database connection
+        $con = $this->opencon();
+    
+        // Prepare the SQL query
+        $query = $con->prepare("SELECT password FROM users WHERE user_id = ?");
+        $query->execute([$userId]);
+    
+        // Fetch the user data as an associative array
+        $user = $query->fetch(PDO::FETCH_ASSOC);
+    
+        // If a user is found, verify the password
+        if ($user && password_verify($currentPassword, $user['password'])) {
+            return true;
+        }
+    
+        // If no user is found or password is incorrect, return false
+        return false;
+    }
+    function updatePassword($userId, $hashedPassword){
+    try {
+        $con = $this->opencon();
+        $con->beginTransaction();
+        $query = $con->prepare("UPDATE users SET password = ? WHERE user_id = ?");
+        $query->execute([$hashedPassword, $userId]);
+        // Update successful
+        $con->commit();
+        return true;
+    } catch (PDOException $e) {
+        // Handle the exception (e.g., log error, return false, etc.)
+         $con->rollBack();
+        return false; // Update failed
+    }
+    }
+    
+     function updateUserProfilePicture($userID, $profilePicturePath) {
+    try {
+        $con = $this->opencon();
+        $con->beginTransaction();
+        $query = $con->prepare("UPDATE users SET profile_picture = ? WHERE user_id = ?");
+        $query->execute([$profilePicturePath, $userID]);
+        // Update successful
+        $con->commit();
+        return true;
+    } catch (PDOException $e) {
+        // Handle the exception (e.g., log error, return false, etc.)
+         $con->rollBack();
+        return false; // Update failed
+    }
+     }
+
     function view ()
          {
             $con = $this->opencon();
@@ -97,6 +148,7 @@ class database{
             users.user_id,
             users.username,
             users.user_email,
+            users.profile_picture,
             users.password,
             users.firstname,
             users.lastname,

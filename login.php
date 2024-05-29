@@ -15,6 +15,8 @@ if (isset($_POST['login'])) {
 
     if ($result) {
         $_SESSION['username'] = $result['username'];
+        $_SESSION['user_id'] = $result['user_id'];
+        $_SESSION['account_type'] = $result['account_type'];    
         if ($result['account_type']== 0) {
             header('location:index.php');
         } else if ($result['account_type'] ==1) {
@@ -62,7 +64,7 @@ if (isset($_POST['login'])) {
                     <input type="submit" name="login" class="btn btn-primary btn-block" value="Login">
                 </div>
                 <div class="col">
-                    <a class="btn btn-danger btn-block" href="signup.php">Sign Up</a>
+                    <a class="btn btn-danger btn-block" href="register.php">Sign Up</a>
                 </div>
             </div>
         </div>
